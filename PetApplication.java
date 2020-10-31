@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 class Pet
 {
+
     private String name;
     private int age;
     private int id;
@@ -45,31 +46,46 @@ class Pet
     public void setId(int id)
     {
         this.id = id;
-    }  
+    }
 }
 
 class PetManager extends ArrayList<Pet>
 {
     //private ArrayList<Pet> items = new ArrayList<Pet>();
-    
+
     public void AddAndIndexItem(Pet item)
     {
-        int itemIndex = this.size()+1;
+        int itemIndex = this.size();
         item.setId(itemIndex);
-        this.add(item);    
+        this.add(item);
     }
-    
+
     public int getSize()
     {
         return this.size();
     }
-    
+
     public Pet getItem(int index)
     {
         return this.get(index);
     }
-}
 
+    public void removeItem(int index)
+    {
+        PetManager newList = new PetManager();
+
+        int i = 0;
+        for (i = 0; i < this.getSize(); i++)
+        {
+            if (i != index)
+            {
+                newList.AddAndIndexItem(this.getItem(i));
+            }
+        }
+        this.clear();
+        this.addAll(newList);
+    }
+}
 
 public class PetApplication
 {
@@ -125,10 +141,10 @@ public class PetApplication
                     AddPet();
                     break;
                 case 3:
-                    //UpdatePet();
+                    UpdatePet(allPets);
                     break;
                 case 4:
-                    //RemovePet();
+                    RemovePet(allPets);
                     break;
                 case 5:
                     SearchPetByName();
@@ -147,7 +163,6 @@ public class PetApplication
     }//end main method
 
     //functions
-        
     public static void DisplayList(PetManager list)
     {
         int i;
@@ -219,7 +234,7 @@ public class PetApplication
 
     public static void SearchPetByName()
     {
-       PetManager tempList = new PetManager();
+        PetManager tempList = new PetManager();
         String searchTermName;
 
         scanner = new Scanner(System.in);
@@ -241,11 +256,10 @@ public class PetApplication
         }
         DisplayList(tempList);
     }
-    
-    
-        public static void SearchPetByAge()
+
+    public static void SearchPetByAge()
     {
-       PetManager tempList = new PetManager();
+        PetManager tempList = new PetManager();
         int searchTermInt;
 
         scanner = new Scanner(System.in);
@@ -266,6 +280,47 @@ public class PetApplication
             }
         }
         DisplayList(tempList);
+    }
+
+    public static void UpdatePet(PetManager list)
+    {
+        DisplayList(list);
+        scanner = new Scanner(System.in);
+
+        //initiate request
+        System.out.print("\nEnter the pet ID you want to update:");
+        int id = scanner.nextInt();
+        //clear out the enter button
+        clearDelimiter = scanner.nextLine();
+
+        Pet petToUpdate = list.get(id);
+        System.out.print(petToUpdate.getName());
+        System.out.print("\nEnter new name and new age:");
+
+        String userResponse = scanner.nextLine();
+
+        String[] data = userResponse.split(" ");
+
+        petToUpdate.setName(data[0]);
+        petToUpdate.setAge(Integer.parseInt(data[1]));
+    }
+
+    public static void RemovePet(PetManager list)
+    {
+        scanner = new Scanner(System.in);
+
+        //initiate request
+        System.out.print("\nEnter the pet ID to remove:");
+        int id = scanner.nextInt();
+        //clear out the enter button
+        clearDelimiter = scanner.nextLine();
+
+        Pet petToRemove = list.get(id);
+
+        list.removeItem(id);
+
+        System.out.print("\n" + petToRemove.getName() + " is removed.");
+
     }
 
 }
