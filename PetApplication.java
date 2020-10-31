@@ -7,9 +7,15 @@ import java.util.ArrayList;
 
 class Pet
 {
-
     private String name;
     private int age;
+    private int id;
+
+    public Pet(String _name, int _age)
+    {
+        this.name = _name;
+        this.age = _age;
+    }
 
     public String getName()
     {
@@ -30,32 +36,65 @@ class Pet
     {
         this.age = _age;
     }
+
+    public int getId()
+    {
+        return id;
+    }
+
+    public void setId(int id)
+    {
+        this.id = id;
+    }  
 }
+
+class PetManager extends ArrayList<Pet>
+{
+    //private ArrayList<Pet> items = new ArrayList<Pet>();
+    
+    public void AddAndIndexItem(Pet item)
+    {
+        int itemIndex = this.size()+1;
+        item.setId(itemIndex);
+        this.add(item);    
+    }
+    
+    public int getSize()
+    {
+        return this.size();
+    }
+    
+    public Pet getItem(int index)
+    {
+        return this.get(index);
+    }
+}
+
 
 public class PetApplication
 {
 
     //data is global
-    private static ArrayList<Pet> allPets;
+    private static PetManager allPets;
     private static Scanner scanner;
     private static String clearDelimiter = null;
 
     public static void main(String[] args)
     {
         //misc initializations
-        allPets = new ArrayList<Pet>();
+        allPets = new PetManager();
         // scanner
         scanner = new Scanner(System.in);
 
         //sample items
-        Pet first = new Pet();
-        first.setAge(4);
-        first.setName("Clunky");
-        Pet second = new Pet();
-        second.setAge(3);
-        second.setName("Oppa");
-        allPets.add(first);
-        allPets.add(second);
+        Pet first = new Pet("Clunky", 4);
+        Pet second = new Pet("Oppa", 3);
+        Pet third = new Pet("Smelly", 2);
+        Pet fourth = new Pet("Smelly", 4);
+        allPets.AddAndIndexItem(first);
+        allPets.AddAndIndexItem(second);
+        allPets.AddAndIndexItem(third);
+        allPets.AddAndIndexItem(fourth);
 
         //start the UI
         // infinite program loop
@@ -80,7 +119,7 @@ public class PetApplication
             switch (userChoice)
             {
                 case 1:
-                    ShowAll();
+                    DisplayList(allPets);
                     break;
                 case 2:
                     AddPet();
@@ -92,10 +131,10 @@ public class PetApplication
                     //RemovePet();
                     break;
                 case 5:
-                    //SearchPetByName();
+                    SearchPetByName();
                     break;
                 case 6:
-                    //SearchPetByAge();
+                    SearchPetByAge();
                     break;
                 case 7:
                     programActive = false;
@@ -108,20 +147,21 @@ public class PetApplication
     }//end main method
 
     //functions
-    public static void ShowAll()
+        
+    public static void DisplayList(PetManager list)
     {
         int i;
         GenerateHeaderLine();
-        for (i = 0; i < allPets.size(); i++)
+        for (i = 0; i < list.getSize(); i++)
         {
-            Print(i, allPets.get(i));
+            Print(list.getItem(i));
         }
         GenerateCloseLine(i);
     }
 
-    public static void Print(int index, Pet item)
+    public static void Print(Pet item)
     {
-        System.out.printf("\n| %3d | %-10s | %4d |", index, item.getName(), item.getAge());
+        System.out.printf("\n| %3d | %-10s | %4d |", item.getId(), item.getName(), item.getAge());
     }
 
     public static void GenerateHeaderLine()
@@ -168,15 +208,64 @@ public class PetApplication
                 petName = data[0];
                 petAge = Integer.parseInt(data[1]);
 
-                Pet newPet = new Pet();
-                newPet.setName(petName);
-                newPet.setAge((petAge));
-                allPets.add(newPet);
+                Pet newPet = new Pet(petName, petAge);
+                allPets.AddAndIndexItem(newPet);
             } else
             {
                 loopIsActive = false;
             }
         }
+    }
+
+    public static void SearchPetByName()
+    {
+       PetManager tempList = new PetManager();
+        String searchTermName;
+
+        scanner = new Scanner(System.in);
+
+        //initiate request
+        System.out.print("Enter a name to search:");
+        //get user input
+        searchTermName = scanner.nextLine();
+
+        for (Pet item : allPets)
+        {
+            String itemName = item.getName();
+            if (itemName.trim().toUpperCase().compareTo(searchTermName.trim().toUpperCase()) == 0)
+            {
+                Pet p = new Pet(item.getName(), item.getAge());
+                p.setId(item.getId());
+                tempList.add(p);
+            }
+        }
+        DisplayList(tempList);
+    }
+    
+    
+        public static void SearchPetByAge()
+    {
+       PetManager tempList = new PetManager();
+        int searchTermInt;
+
+        scanner = new Scanner(System.in);
+
+        //initiate request
+        System.out.print("Enter age to search:");
+        //get user input
+        searchTermInt = scanner.nextInt();
+
+        for (Pet item : allPets)
+        {
+            int itemAge = item.getAge();
+            if (searchTermInt == itemAge)
+            {
+                Pet p = new Pet(item.getName(), item.getAge());
+                p.setId(item.getId());
+                tempList.add(p);
+            }
+        }
+        DisplayList(tempList);
     }
 
 }
