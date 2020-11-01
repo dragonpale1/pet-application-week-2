@@ -5,9 +5,10 @@ package petapplication;
 import java.util.Scanner;
 import java.util.ArrayList;
 
+
+
 class Pet
 {
-
     private String name;
     private int age;
     private int id;
@@ -49,10 +50,11 @@ class Pet
     }
 }
 
+
+
+
 class PetManager extends ArrayList<Pet>
 {
-    //private ArrayList<Pet> items = new ArrayList<Pet>();
-
     public void AddAndIndexItem(Pet item)
     {
         int itemIndex = this.size();
@@ -87,9 +89,10 @@ class PetManager extends ArrayList<Pet>
     }
 }
 
+
+
 public class PetApplication
 {
-
     //data is global
     private static PetManager allPets;
     private static Scanner scanner;
@@ -103,14 +106,14 @@ public class PetApplication
         scanner = new Scanner(System.in);
 
         //sample items
-        Pet first = new Pet("Clunky", 4);
-        Pet second = new Pet("Oppa", 3);
-        Pet third = new Pet("Smelly", 2);
-        Pet fourth = new Pet("Smelly", 4);
-        allPets.AddAndIndexItem(first);
-        allPets.AddAndIndexItem(second);
-        allPets.AddAndIndexItem(third);
-        allPets.AddAndIndexItem(fourth);
+//        Pet first = new Pet("Clunky", 4);
+//        Pet second = new Pet("Oppa", 3);
+//        Pet third = new Pet("Smelly", 2);
+//        Pet fourth = new Pet("Smelly", 4);
+//        allPets.AddAndIndexItem(first);
+//        allPets.AddAndIndexItem(second);
+//        allPets.AddAndIndexItem(third);
+//        allPets.AddAndIndexItem(fourth);
 
         //start the UI
         // infinite program loop
@@ -162,7 +165,10 @@ public class PetApplication
         scanner.close();
     }//end main method
 
+    //
     //functions
+    //
+    
     public static void DisplayList(PetManager list)
     {
         int i;
@@ -173,11 +179,13 @@ public class PetApplication
         }
         GenerateCloseLine(i);
     }
+    
 
     public static void Print(Pet item)
     {
         System.out.printf("\n| %3d | %-10s | %4d |", item.getId(), item.getName(), item.getAge());
     }
+    
 
     public static void GenerateHeaderLine()
     {
@@ -186,12 +194,14 @@ public class PetApplication
         System.out.printf("\n+-------------------------+");
     }
 
+    
     public static void GenerateCloseLine(int totalCount)
     {
         System.out.printf("\n+-------------------------+\n");
         System.out.printf("%-1d rows in set\n", totalCount);
     }
 
+    
     public static void AddPet()
     {
         boolean loopIsActive = true;
@@ -231,6 +241,7 @@ public class PetApplication
             }
         }
     }
+    
 
     public static void SearchPetByName()
     {
@@ -257,6 +268,8 @@ public class PetApplication
         DisplayList(tempList);
     }
 
+    
+    
     public static void SearchPetByAge()
     {
         PetManager tempList = new PetManager();
@@ -282,6 +295,8 @@ public class PetApplication
         DisplayList(tempList);
     }
 
+    
+    
     public static void UpdatePet(PetManager list)
     {
         DisplayList(list);
@@ -305,6 +320,8 @@ public class PetApplication
         petToUpdate.setAge(Integer.parseInt(data[1]));
     }
 
+    
+    
     public static void RemovePet(PetManager list)
     {
         scanner = new Scanner(System.in);
@@ -320,7 +337,6 @@ public class PetApplication
         list.removeItem(id);
 
         System.out.print("\n" + petToRemove.getName() + " is removed.");
-
     }
 
 }
