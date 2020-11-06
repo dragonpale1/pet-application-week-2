@@ -4,11 +4,19 @@ package petapplication;
 
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.File;
+import java.io.Serializable;
 
+import java.io.EOFException;
+import java.io.IOException;
 
-
-class Pet
+class Pet implements Serializable
 {
+
     private String name;
     private int age;
     private int id;
@@ -50,11 +58,9 @@ class Pet
     }
 }
 
-
-
-
-class PetManager extends ArrayList<Pet>
+class PetManager extends ArrayList<Pet> implements Serializable
 {
+
     public void AddAndIndexItem(Pet item)
     {
         int itemIndex = this.size();
@@ -87,33 +93,166 @@ class PetManager extends ArrayList<Pet>
         this.clear();
         this.addAll(newList);
     }
+
+    public static PetManager load(String filename) throws IOException
+    {
+        PetManager manager = null;
+
+        try
+        {
+            //read object from file 
+            FileInputStream fileIn = new FileInputStream(filename);
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+
+            try
+            {
+                manager = (PetManager) in.readObject();
+            }
+            catch (EOFException exc)
+            {
+                in.close();
+            }
+            catch (ClassNotFoundException c)
+            {
+                System.out.println("PetManager class not found");
+            }
+
+            //cleanup
+            fileIn.close();
+            System.out.println("PetManager loaded successfully!");
+        }
+        catch (IOException e)
+        {
+            System.out.println("IOException caught. PetManager failed to load.");
+            e.printStackTrace();
+        }
+        return manager;
+    }
+
+    public static boolean save(PetManager petRecords, String fileName) throws Exception
+    {
+        boolean save = false;
+        try
+        {
+            FileOutputStream fileOut = new FileOutputStream(fileName);
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(petRecords);
+
+            out.close();
+            fileOut.close();
+            save = true;
+        }
+        catch (Exception e)
+        {
+            System.out.println("PetManager failed to save.");
+            e.printStackTrace();
+        }
+        return save;
+    }
+
+    public static boolean findExistingSaveFile(String fileName)
+    {
+        File file = null;
+        boolean fileExists = false;
+
+        // create new file object
+        file = new File(fileName);
+
+        // test file
+        fileExists = file.exists();
+
+        System.out.println("\nSave file found.\n");
+
+        if (file.length() == 0)
+        {
+            System.out.println("\nSave file is empty.\n");
+            fileExists = false;
+        }
+
+        return fileExists;
+    }
+
+    public static boolean createNewSaveFile(String fileName) throws Exception
+    {
+        File file = null;
+        boolean fileExists = false;
+
+        try
+        {
+            // create new file object
+            file = new File(fileName);
+
+            // test file
+            fileExists = file.exists();
+
+            if (fileExists)
+            {
+                return fileExists;
+            }
+            else
+            {
+                // create new file in the system
+                file.createNewFile();
+
+                // test file again
+                fileExists = file.exists();
+                System.out.println("\nNew save file created.\n");
+            }
+        }
+        catch (Exception e)
+        {
+            // if any error occurs
+            e.printStackTrace();
+        }
+        file = null;
+
+        return fileExists;
+    }
 }
-
-
 
 public class PetApplication
 {
+
+    //filename
+    private static String fileName;
+
     //data is global
     private static PetManager allPets;
     private static Scanner scanner;
     private static String clearDelimiter = null;
 
-    public static void main(String[] args)
+    public static void main(String[] args) throws Exception, IOException
     {
+        fileName = "pets.txt";
         //misc initializations
-        allPets = new PetManager();
+        boolean fileExists = PetManager.findExistingSaveFile(fileName);
+
+        if (!fileExists)
+        {
+            fileExists = PetManager.createNewSaveFile(fileName);
+            allPets = new PetManager();
+        }
+        else
+        {
+            allPets = PetManager.load(fileName);
+        }
+
         // scanner
         scanner = new Scanner(System.in);
 
-        //sample items
-//        Pet first = new Pet("Clunky", 4);
-//        Pet second = new Pet("Oppa", 3);
-//        Pet third = new Pet("Smelly", 2);
-//        Pet fourth = new Pet("Smelly", 4);
-//        allPets.AddAndIndexItem(first);
-//        allPets.AddAndIndexItem(second);
-//        allPets.AddAndIndexItem(third);
-//        allPets.AddAndIndexItem(fourth);
+        //sample items if file is empty
+        //comment if not wanted!
+        if (allPets.size() == 0)
+        {
+            Pet first = new Pet("Clunky", 4);
+            Pet second = new Pet("Oppa", 3);
+            Pet third = new Pet("Smelly", 2);
+            Pet fourth = new Pet("Smelly", 4);
+            allPets.AddAndIndexItem(first);
+            allPets.AddAndIndexItem(second);
+            allPets.AddAndIndexItem(third);
+            allPets.AddAndIndexItem(fourth);
+        }
 
         //start the UI
         // infinite program loop
@@ -157,6 +296,12 @@ public class PetApplication
                     break;
                 case 7:
                     programActive = false;
+                    boolean fileSaveSuccessful = PetManager.save(allPets, fileName);
+                    if (fileSaveSuccessful)
+                    {
+                        System.out.println("Test saved.");
+                    }
+
                     System.out.println("Goodbye.\n");
                     break;
             }
@@ -168,7 +313,6 @@ public class PetApplication
     //
     //functions
     //
-    
     public static void DisplayList(PetManager list)
     {
         int i;
@@ -179,13 +323,11 @@ public class PetApplication
         }
         GenerateCloseLine(i);
     }
-    
 
     public static void Print(Pet item)
     {
         System.out.printf("\n| %3d | %-10s | %4d |", item.getId(), item.getName(), item.getAge());
     }
-    
 
     public static void GenerateHeaderLine()
     {
@@ -194,14 +336,12 @@ public class PetApplication
         System.out.printf("\n+-------------------------+");
     }
 
-    
     public static void GenerateCloseLine(int totalCount)
     {
         System.out.printf("\n+-------------------------+\n");
         System.out.printf("%-1d rows in set\n", totalCount);
     }
 
-    
     public static void AddPet()
     {
         boolean loopIsActive = true;
@@ -235,13 +375,13 @@ public class PetApplication
 
                 Pet newPet = new Pet(petName, petAge);
                 allPets.AddAndIndexItem(newPet);
-            } else
+            }
+            else
             {
                 loopIsActive = false;
             }
         }
     }
-    
 
     public static void SearchPetByName()
     {
@@ -268,8 +408,6 @@ public class PetApplication
         DisplayList(tempList);
     }
 
-    
-    
     public static void SearchPetByAge()
     {
         PetManager tempList = new PetManager();
@@ -295,8 +433,6 @@ public class PetApplication
         DisplayList(tempList);
     }
 
-    
-    
     public static void UpdatePet(PetManager list)
     {
         DisplayList(list);
@@ -320,8 +456,6 @@ public class PetApplication
         petToUpdate.setAge(Integer.parseInt(data[1]));
     }
 
-    
-    
     public static void RemovePet(PetManager list)
     {
         scanner = new Scanner(System.in);
