@@ -61,11 +61,21 @@ class Pet implements Serializable
 class PetManager extends ArrayList<Pet> implements Serializable
 {
 
-    public void AddAndIndexItem(Pet item)
+    public boolean AddAndIndexItem(Pet item)
     {
         int itemIndex = this.size();
-        item.setId(itemIndex);
-        this.add(item);
+        //adding logic to limit the size of the list to 5 items
+        if (itemIndex < 5)
+        {
+            item.setId(itemIndex);
+            this.add(item);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
     }
 
     public int getSize()
@@ -242,18 +252,17 @@ public class PetApplication
 
         //sample items if file is empty
         //comment if not wanted!
-        if (allPets.size() == 0)
-        {
-            Pet first = new Pet("Clunky", 4);
-            Pet second = new Pet("Oppa", 3);
-            Pet third = new Pet("Smelly", 2);
-            Pet fourth = new Pet("Smelly", 4);
-            allPets.AddAndIndexItem(first);
-            allPets.AddAndIndexItem(second);
-            allPets.AddAndIndexItem(third);
-            allPets.AddAndIndexItem(fourth);
-        }
-
+//        if (allPets.size() == 0)
+//        {
+//            Pet first = new Pet("Clunky", 4);
+//            Pet second = new Pet("Oppa", 3);
+//            Pet third = new Pet("Smelly", 2);
+//            Pet fourth = new Pet("Smelly", 4);
+//            allPets.AddAndIndexItem(first);
+//            allPets.AddAndIndexItem(second);
+//            allPets.AddAndIndexItem(third);
+//            allPets.AddAndIndexItem(fourth);
+//        }
         //start the UI
         // infinite program loop
         boolean programActive = true;
@@ -299,7 +308,7 @@ public class PetApplication
                     boolean fileSaveSuccessful = PetManager.save(allPets, fileName);
                     if (fileSaveSuccessful)
                     {
-                        System.out.println("Test saved.");
+                        System.out.println("Pets saved.");
                     }
 
                     System.out.println("Goodbye.\n");
@@ -350,6 +359,7 @@ public class PetApplication
         int petCount = 0;
         String userResponse;
         String petName;
+        boolean petAdded;
 
         //initiate loop
         while (loopIsActive)
@@ -370,16 +380,47 @@ public class PetApplication
             {
                 String[] data = userResponse.split(" ");
 
+                //new error handling logic around input
+                //must have 2 values only, age between 1 and 20 only
+                //2 values first
+                if (data.length != 2)
+                {
+                    System.out.print("\n" + userResponse + " is not a valid input.\n");
+                    continue;
+                }
+
                 petName = data[0];
                 petAge = Integer.parseInt(data[1]);
 
-                Pet newPet = new Pet(petName, petAge);
-                allPets.AddAndIndexItem(newPet);
+                //check for correct petAge 
+                if (petAge < 1 || petAge > 20)
+                {
+                    System.out.print("\n" + petAge + " is not a valid age.\n");
+                    continue;
+                }
+
+                petAdded = allPets.AddAndIndexItem(new Pet(petName, petAge));
+                //augment the count of the pets
+                if (petAdded)
+                {
+                    petCount++;
+                }
+                else
+                //limit on number of pets
+                {
+                    System.out.println("\nError: Database is full.\n");
+                    //no more pets can be added, exit loop
+                    loopIsActive = false;
+                }
             }
             else
             {
                 loopIsActive = false;
             }
+        }
+        if (petCount > 0)
+        {
+            System.out.println("\n" + petCount + " pets added.\n");
         }
     }
 
@@ -444,6 +485,12 @@ public class PetApplication
         //clear out the enter button
         clearDelimiter = scanner.nextLine();
 
+        if (id < 0 || id > allPets.getSize())
+        {
+            System.out.print("\nError: ID " + id + " does not exist.\n");
+            return;
+        }
+
         Pet petToUpdate = list.get(id);
         System.out.print(petToUpdate.getName());
         System.out.print("\nEnter new name and new age:");
@@ -451,6 +498,25 @@ public class PetApplication
         String userResponse = scanner.nextLine();
 
         String[] data = userResponse.split(" ");
+
+        //new error handling logic around input
+        //must have 2 values only, age between 1 and 20 only
+        //2 values first
+        if (data.length != 2)
+        {
+            System.out.print("\n" + userResponse + " is not a valid input.\n");
+            return;
+        }
+
+        String petName = data[0];
+        int petAge = Integer.parseInt(data[1]);
+
+        //check for correct petAge 
+        if (petAge < 1 || petAge > 20)
+        {
+            System.out.print("\n" + petAge + " is not a valid age.\n");
+            return;
+        }
 
         petToUpdate.setName(data[0]);
         petToUpdate.setAge(Integer.parseInt(data[1]));
@@ -465,6 +531,12 @@ public class PetApplication
         int id = scanner.nextInt();
         //clear out the enter button
         clearDelimiter = scanner.nextLine();
+
+        if (id < 0 || id > allPets.getSize())
+        {
+            System.out.print("\nError: ID " + id + " does not exist.\n");
+            return;
+        }
 
         Pet petToRemove = list.get(id);
 
